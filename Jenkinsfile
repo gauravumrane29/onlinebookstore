@@ -1,15 +1,42 @@
-pipeline{
-    agent any
+pipeline {
+    
+	agent any
+	
     stages{
-        stage('scm checkout'){
-            steps{
-            git "https://github.com/gauravumrane29/onlinebookstore.git"
+        
+        stage('BUILD'){
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+            post {
+                success {
+                    echo 'Now Archiving...'
+                    archiveArtifacts artifacts: '**/target/*.war'
+                }
             }
         }
-        stage('Build'){
-            steps{
-               sh 'mvn clean package'
+
+	stage('UNIT TEST'){
+            steps {
+                sh 'mvn test'
             }
-        }    
+        }
+
+	stage('INTEGRATION TEST'){
+            steps {
+                sh 'mvn verify -DskipUnitTests'
+            }
+        }
+		
+        stage ('CODE ANALYSIS WITH CHECKSTYLE'){
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+            post {
+                success {
+                    echo 'Generated Analysis Result'
+                }
+            }
+        }
     }
 }
