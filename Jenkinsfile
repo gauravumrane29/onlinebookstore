@@ -10,8 +10,6 @@ pipeline{
             steps{
                sh 'mvn clean package'
             }
-            post{
-            }
         }
         stage('Test'){
             steps{
